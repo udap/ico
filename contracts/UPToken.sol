@@ -243,7 +243,7 @@ contract StandardToken is ERC20, BasicToken {
 
 contract UPToken is StandardToken {
   string public constant name = "UDAP Token";
-  string public constant symbol = "UP";
+  string public constant symbol = "UPX";
   uint8 public decimals;
 
   // udap account address must be the creator of the token.
@@ -257,3 +257,4 @@ contract UPToken is StandardToken {
   }
 
 }
+
