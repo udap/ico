@@ -51,50 +51,6 @@ contract Ownable {
   }
 }
 
-/**
- * @title Pausable
- * @dev Base contract which allows children to implement an emergency stop mechanism.
- */
-contract Pausable is Ownable {
-  event Pause();
-  event Unpause();
-
-  bool public paused = false;
-
-
-  /**
-   * @dev Modifier to make a function callable only when the contract is not paused.
-   */
-  modifier whenNotPaused() {
-    require(!paused);
-    _;
-  }
-
-  /**
-   * @dev Modifier to make a function callable only when the contract is paused.
-   */
-  modifier whenPaused() {
-    require(paused);
-    _;
-  }
-
-  /**
-   * @dev called by the owner to pause, triggers stopped state
-   */
-  function pause() onlyOwner whenNotPaused public {
-    paused = true;
-    emit Pause();
-  }
-
-  /**
-   * @dev called by the owner to unpause, returns to normal state
-   */
-  function unpause() onlyOwner whenPaused public {
-    paused = false;
-    emit Unpause();
-  }
-}
-
 contract Crowdsale {
   using SafeMath for uint256;
 
@@ -188,11 +144,7 @@ contract Crowdsale {
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
-  function _preValidatePurchase(
-    address _beneficiary,
-    uint256 _weiAmount
-  )
-    internal
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal
   {
     require(_beneficiary != address(0));
     require(_weiAmount != 0);
@@ -535,7 +487,7 @@ contract Whitelist is Ownable {
   
 }
 
-contract UDAPCrowdsale is Pauseable, Whitelist, RefundableCrowdsale {
+contract UDAPCrowdsale is Whitelist, RefundableCrowdsale {
   using SafeMath for uint256;
   // maximum funds to be collected in wei
   uint256 public cap;
@@ -549,8 +501,8 @@ contract UDAPCrowdsale is Pauseable, Whitelist, RefundableCrowdsale {
    * @param _cap the maximum funds to be collected (in wei)
    */
   constructor (uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _goal,
-    uint256 _cap, address _wallet, UPToken _upToken) public {
-    Crowdsale(_rate, _wallet, _upToken)
+    uint256 _cap, address _wallet, ERC20 _token)
+    Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_startTime, _endTime)
     FinalizableCrowdsale()
     RefundableCrowdsale(_goal)
@@ -582,7 +534,6 @@ contract UDAPCrowdsale is Pauseable, Whitelist, RefundableCrowdsale {
   )
     internal 
     isWhitelisted(_beneficiary)
-    whenNotPaused()
   {
     super._preValidatePurchase(_beneficiary, _weiAmount);
     require(weiRaised.add(_weiAmount) <= cap);
