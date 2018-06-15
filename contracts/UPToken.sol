@@ -244,16 +244,11 @@ contract StandardToken is ERC20, BasicToken {
 contract UPToken is StandardToken {
   string public constant name = "UDAP Token";
   string public constant symbol = "UPX";
-  uint8 public decimals;
+  uint8 public decimals = 18;
 
-  // udap account address must be the creator of the token.
-  address public constant udap = 0x7Fdb6076582dCf08e10BB59fe562cc6298583281;
-
-  constructor(uint256 _initialSupply, uint8 _decimals) public {
-    require(msg.sender == udap);
-    decimals = _decimals;
-    totalSupply_ = _initialSupply;
-    balances[msg.sender] = _initialSupply;
+  constructor(uint256 _initialSupply) public {
+    totalSupply_ = _initialSupply * 10 ** uint256(decimals);
+    balances[msg.sender] = totalSupply_;
   }
 
 }
