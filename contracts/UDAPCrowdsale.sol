@@ -582,5 +582,14 @@ contract UDAPCrowdsale is Whitelist, Pausable, RefundableCrowdsale {
     super._preValidatePurchase(_beneficiary, _weiAmount);
     require(weiRaised.add(_weiAmount) <= cap);
   }
+  
+  function finalization() internal {
+    uint256 remaining = token.balanceOf(this);
+    if (remaining > 0) {
+      token.transfer(wallet, remaining);
+    }
+    super.finalization();
+  }
+
 
 }
