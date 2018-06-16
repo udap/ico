@@ -576,6 +576,7 @@ contract UDAPCrowdsale is Whitelist, Pausable, RefundableCrowdsale {
     uint256 _weiAmount
   )
     internal 
+    whenNotPaused
     isWhitelisted(_beneficiary)
   {
     super._preValidatePurchase(_beneficiary, _weiAmount);
