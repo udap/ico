@@ -51,6 +51,50 @@ contract Ownable {
   }
 }
 
+/**
+ * @title Pausable
+ * @dev Base contract which allows children to implement an emergency stop mechanism.
+ */
+contract Pausable is Ownable {
+  event Pause();
+  event Unpause();
+
+  bool public paused = false;
+
+
+  /**
+   * @dev Modifier to make a function callable only when the contract is not paused.
+   */
+  modifier whenNotPaused() {
+    require(!paused);
+    _;
+  }
+
+  /**
+   * @dev Modifier to make a function callable only when the contract is paused.
+   */
+  modifier whenPaused() {
+    require(paused);
+    _;
+  }
+
+  /**
+   * @dev called by the owner to pause, triggers stopped state
+   */
+  function pause() onlyOwner whenNotPaused public {
+    paused = true;
+    emit Pause();
+  }
+
+  /**
+   * @dev called by the owner to unpause, returns to normal state
+   */
+  function unpause() onlyOwner whenPaused public {
+    paused = false;
+    emit Unpause();
+  }
+}
+
 contract Crowdsale {
   using SafeMath for uint256;
 
@@ -446,7 +490,6 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
 
 }
 
-
 contract Whitelist is Ownable {
   // whitelist addresses allowed for buying tokens
   mapping(address => bool) public whitelist;
@@ -487,7 +530,7 @@ contract Whitelist is Ownable {
   
 }
 
-contract UDAPCrowdsale is Whitelist, RefundableCrowdsale {
+contract UDAPCrowdsale is Whitelist, Pausable, RefundableCrowdsale {
   using SafeMath for uint256;
   // maximum funds to be collected in wei
   uint256 public cap;
