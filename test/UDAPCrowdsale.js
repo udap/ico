@@ -47,16 +47,19 @@ contract('UDAPCrowdsale test', async (accounts) => {
         //accounts[0] use 1 ether to buy tokens
         let etherAmount = 1*Math.pow(10,18);
         let balanceOfCrowdsale_old = await uptoken.balanceOf.call(crowdsale.address);
+
+
         let result = await crowdsale.sendTransaction({
             from :buyerAccount,
             to:crowdsale.address,
-            value:etherAmount,
+            value:web3.toWei(1, "ether"),
             gasPrice:web3.toWei(20, "gwei")
         });
         let rate = await crowdsale.rate.call();
         let balanceOfBuyer = await uptoken.balanceOf.call(buyerAccount);
         let tokenAomunt = rate * etherAmount;
 
+        console.log("balanceOfBuyer===",balanceOfBuyer,"tokenAomunt",tokenAomunt);
         assert.equal(balanceOfBuyer,tokenAomunt,"buyer token balance equal to rate * etherAmount");
 
 
