@@ -43,6 +43,29 @@ contract('UDAPCrowdsale test', async (accounts) => {
         assert.isAtLeast(closingTime, currentTime,"closingTime is greater or equal to currentTime");
     });
 
+    it("should buy token correctly ", async () => {
+        //accounts[0] use 1 ether to buy tokens
+        let etherAmount = 1*Math.pow(10,18);
+        let balanceOfCrowdsale_old = await uptoken.balanceOf.call(crowdsale.address);
+        let result = await crowdsale.sendTransaction({
+            from :buyerAccount,
+            to:crowdsale.address,
+            value:etherAmount,
+            gasPrice:web3.toWei(20, "gwei")
+        });
+        let rate = await crowdsale.rate.call();
+        let balanceOfBuyer = await uptoken.balanceOf.call(buyerAccount);
+        let tokenAomunt = rate * etherAmount;
+
+        assert.equal(balanceOfBuyer,tokenAomunt,"buyer token balance equal to rate * etherAmount");
+
+
+        let balanceOfCrowdsale = await uptoken.balanceOf.call(crowdsale.address);
+        assert.equal(balanceOfCrowdsale_old,balanceOfBuyer + balanceOfCrowdsale,"old balanceOfCrowdsale equal to balanceOfBuyer + balanceOfCrowdsale");
+
+
+    });
+
 
 
    /* it("should call a function that depends on a linked library", async () => {
