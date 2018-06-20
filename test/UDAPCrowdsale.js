@@ -5,7 +5,6 @@ var BigNumber = require('bignumber.js');
 contract('UDAPCrowdsale test', async (accounts) => {
 
     let buyerAccount = accounts[3];
-    let receiveEthWallet;
     let crowdsale;
     let crowdsale_owner;
     let uptoken;
@@ -13,7 +12,6 @@ contract('UDAPCrowdsale test', async (accounts) => {
     before(async () => {
         crowdsale = await UDAPCrowdsale.deployed();
         uptoken = await UPToken.deployed();
-        receiveEthWallet = await crowdsale.wallet.call();
         crowdsale_owner =  await crowdsale.owner.call();
     });
 
@@ -155,52 +153,34 @@ contract('UDAPCrowdsale test', async (accounts) => {
         let currentTime = parseInt(new Date().getTime()/1000);
         let closingTime = await crowdsale.closingTime.call();
         if(closingTime > currentTime){
-            let sleepTime = (closingTime - currentTime)*1000;
+            let sleepTime = (closingTime - currentTime+5)*1000;
             await new Promise(resolve => setTimeout(resolve,sleepTime));
         }
         let hasClosed = await crowdsale.hasClosed.call();
-        assert.isTrue(hasClosed,"hasClosed is true");
+        assert.isTrue(hasClosed,"hasClosed should be true");
+    });
+
+    it("Withdraw eth from RefundVault contract ", async () => {
+
+        let receiveEthWallet = await crowdsale.wallet.call();
+
+        let walletBalance = web3.eth.getBalance(receiveEthWallet);
+
+        let vaultAddr = await crowdsale.vault.call();
+        let vaultBalance = web3.eth.getBalance(vaultAddr);
+        let weiRaised = await crowdsale.weiRaised.call();
+
+        assert.isTrue(vaultBalance.equals(weiRaised),"RefundVault eth balance equal to weiRaised");
+
+        await crowdsale.finalize({from: crowdsale_owner});
+
+        let after_walletBalance = web3.eth.getBalance(receiveEthWallet);
+
+        assert.equal(after_walletBalance.toNumber(),weiRaised.toNumber()+walletBalance.toNumber(),"after calling the finalize() method, walletBalance equal to weiRaised + before walletBalance");
     });
 
 
 
 
-
-
-
-
-
-
-
-   /*
-
-    it("should send coin correctly", async () => {
-
-        // Get initial balances of first and second account.
-        let account_one = accounts[0];
-        let account_two = accounts[1];
-
-        let amount = 10;
-
-
-        let instance = await MetaCoin.deployed();
-        let meta = instance;
-
-        let balance = await meta.getBalance.call(account_one);
-        let account_one_starting_balance = balance.toNumber();
-
-        balance = await meta.getBalance.call(account_two);
-        let account_two_starting_balance = balance.toNumber();
-        await meta.sendCoin(account_two, amount, {from: account_one});
-
-        balance = await meta.getBalance.call(account_one);
-        let account_one_ending_balance = balance.toNumber();
-
-        balance = await meta.getBalance.call(account_two);
-        let account_two_ending_balance = balance.toNumber();
-
-        assert.equal(account_one_ending_balance, account_one_starting_balance - amount, "Amount wasn't correctly taken from the sender");
-        assert.equal(account_two_ending_balance, account_two_starting_balance + amount, "Amount wasn't correctly sent to the receiver");
-    });*/
 
 });
