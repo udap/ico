@@ -95,6 +95,27 @@ contract('UDAPCrowdsale test', async (accounts) => {
         assert.isFalse(paused,"after calling the unpause() method, paused is false");
     });
 
+    it("should goal reached  correctly", async () => {
+
+        let goalReached = await crowdsale.goalReached.call();
+        assert.isFalse(goalReached,"at the beginning goalReached is false");
+
+        let goal = await crowdsale.goal.call();
+
+        let weiRaised = await crowdsale.weiRaised.call();
+
+        //buy tokens
+        let result = await crowdsale.sendTransaction({
+            from :buyerAccount,
+            to:crowdsale.address,
+            value:goal.minus(weiRaised),
+            gasPrice:web3.toWei(20, "gwei").toString()
+        });
+
+        goalReached = await crowdsale.goalReached.call();
+        assert.isTrue(goalReached,"at the beginning goalReached is false");
+    });
+
 
 
 
