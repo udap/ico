@@ -12,7 +12,7 @@ module.exports = function(deployer, network,accounts) {
    deployer.deploy(UPToken,_initialSupply).then(function(){
        /*uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _goal,
            uint256 _cap, address _wallet, ERC20 _token*/
-       let _wallet=accounts[accounts.length-1];
+       let _wallet=accounts[accounts.length-3];
        let _token=UPToken.address;
        return deployer.deploy(UDAPCrowdsale,_startTime, _endTime,_rate,_goal,_cap,_wallet,UPToken.address);
    });
