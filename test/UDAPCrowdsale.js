@@ -64,6 +64,43 @@ contract('UDAPCrowdsale test', async (accounts) => {
 
     });
 
+    it("should pause crowdsalea correctly", async () => {
+        let paused = await crowdsale.paused.call();
+        assert.isFalse(paused,"original paused is false");
+
+        let transaction = await crowdsale.pause({from: crowdsale_owner});
+
+        paused = await crowdsale.paused.call();
+        assert.isTrue(paused,"after calling the pause() method, paused is true");
+
+        //should can't buy tokens when paused
+        let fn;
+        crowdsale.sendTransaction({
+            from :buyerAccount,
+            to:crowdsale.address,
+            value:web3.toWei(1, "ether"),
+            gasPrice:web3.toWei(20, "gwei")
+        }).catch(e => {
+            fn = () => {throw e};
+        }).finally(()=> {
+            assert.throw(fn,Error,"VM Exception while processing transaction: revert");
+        });
+    });
+
+    it("should unpause crowdsalea correctly", async () => {
+
+        let transaction = await crowdsale.unpause({from: crowdsale_owner});
+
+        let paused = await crowdsale.paused.call();
+        assert.isFalse(paused,"after calling the unpause() method, paused is false");
+    });
+
+
+
+
+
+
+
 
 
    /* it("should call a function that depends on a linked library", async () => {
