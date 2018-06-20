@@ -1,5 +1,6 @@
 const UDAPCrowdsale = artifacts.require("UDAPCrowdsale");
 const UPToken = artifacts.require("UPToken");
+var BigNumber = require('bignumber.js');
 
 contract('UDAPCrowdsale test', async (accounts) => {
 
@@ -17,9 +18,8 @@ contract('UDAPCrowdsale test', async (accounts) => {
     });
 
     it("UPToken should transfer token correctly", async () => {
-        let amount = 100000000;
+        let amount = 100000000 * Math.pow(10,18);
         let  transaction = await uptoken.transfer(crowdsale.address,amount,{from: accounts[0]});
-
         let balance = await uptoken.balanceOf.call(crowdsale.address);
         assert.equal(balance, amount);
     });
@@ -45,27 +45,22 @@ contract('UDAPCrowdsale test', async (accounts) => {
 
     it("should buy token correctly ", async () => {
         //accounts[0] use 1 ether to buy tokens
-        let etherAmount = 1*Math.pow(10,18);
+        let etherAmount = web3.toWei(1, "ether");
         let balanceOfCrowdsale_old = await uptoken.balanceOf.call(crowdsale.address);
-
 
         let result = await crowdsale.sendTransaction({
             from :buyerAccount,
             to:crowdsale.address,
-            value:web3.toWei(1, "ether"),
-            gasPrice:web3.toWei(20, "gwei")
+            value:etherAmount.toString(),
+            gasPrice:web3.toWei(20, "gwei").toString()
         });
         let rate = await crowdsale.rate.call();
         let balanceOfBuyer = await uptoken.balanceOf.call(buyerAccount);
-        let tokenAomunt = rate * etherAmount;
-
-        console.log("balanceOfBuyer===",balanceOfBuyer,"tokenAomunt",tokenAomunt);
-        assert.equal(balanceOfBuyer,tokenAomunt,"buyer token balance equal to rate * etherAmount");
+        assert.equal(balanceOfBuyer,rate*etherAmount,"buyer token balance equal to rate * etherAmount");
 
 
         let balanceOfCrowdsale = await uptoken.balanceOf.call(crowdsale.address);
-        assert.equal(balanceOfCrowdsale_old,balanceOfBuyer + balanceOfCrowdsale,"old balanceOfCrowdsale equal to balanceOfBuyer + balanceOfCrowdsale");
-
+        assert.isTrue(balanceOfCrowdsale_old.equals(balanceOfBuyer.plus(balanceOfCrowdsale)),"old balanceOfCrowdsale equal to balanceOfBuyer + balanceOfCrowdsale");
 
     });
 
