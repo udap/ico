@@ -151,23 +151,28 @@ contract('UDAPCrowdsale test', async (accounts) => {
 
     });
 
-
-
-
-
-
-
-
-
-   /* it("should call a function that depends on a linked library", async () => {
-        let meta = await MetaCoin.deployed();
-        let outCoinBalance = await meta.getBalance.call(accounts[0]);
-        let metaCoinBalance = outCoinBalance.toNumber();
-        let outCoinBalanceEth = await meta.getBalanceInEth.call(accounts[0]);
-        let metaCoinEthBalance = outCoinBalanceEth.toNumber();
-        assert.equal(metaCoinEthBalance, 2 * metaCoinBalance);
-
+    it("Waiting for crowdsale to close", async () => {
+        let currentTime = parseInt(new Date().getTime()/1000);
+        let closingTime = await crowdsale.closingTime.call();
+        if(closingTime > currentTime){
+            let sleepTime = (closingTime - currentTime)*1000;
+            await new Promise(resolve => setTimeout(resolve,sleepTime));
+        }
+        let hasClosed = await crowdsale.hasClosed.call();
+        assert.isTrue(hasClosed,"hasClosed is true");
     });
+
+
+
+
+
+
+
+
+
+
+
+   /*
 
     it("should send coin correctly", async () => {
 
