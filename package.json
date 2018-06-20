@@ -24,5 +24,8 @@
     "solc": "^0.4.19",
     "truffle-contract": "^3.0.3",
     "zeppelin-solidity": "1.6.0"
+  },
+  "devDependencies": {
+    "truffle": "^4.1.11"
   }
 }
