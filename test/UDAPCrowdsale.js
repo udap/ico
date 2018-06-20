@@ -113,7 +113,42 @@ contract('UDAPCrowdsale test', async (accounts) => {
         });
 
         goalReached = await crowdsale.goalReached.call();
-        assert.isTrue(goalReached,"at the beginning goalReached is false");
+        assert.isTrue(goalReached,"goalReached is true");
+    });
+
+    it("should cap reached  correctly", async () => {
+
+        let capReached = await crowdsale.capReached.call();
+        assert.isFalse(capReached,"at the beginning capReached is false");
+
+        let cap = await crowdsale.cap.call();
+
+        let weiRaised = await crowdsale.weiRaised.call();
+
+        //buy tokens
+        let result = await crowdsale.sendTransaction({
+            from :buyerAccount,
+            to:crowdsale.address,
+            value:cap.minus(weiRaised),
+            gasPrice:web3.toWei(20, "gwei").toString()
+        });
+
+        capReached = await crowdsale.capReached.call();
+        assert.isTrue(capReached,"capReached is true");
+
+        //should can't buy tokens when capReached
+        let fn;
+        crowdsale.sendTransaction({
+            from :buyerAccount,
+            to:crowdsale.address,
+            value:web3.toWei(1, "ether"),
+            gasPrice:web3.toWei(20, "gwei")
+        }).catch(e => {
+            fn = () => {throw e};
+        }).finally(()=> {
+            assert.throw(fn,Error,"VM Exception while processing transaction: revert");
+        });
+
     });
 
 
