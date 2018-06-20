@@ -165,6 +165,7 @@ contract('UDAPCrowdsale test', async (accounts) => {
         let receiveEthWallet = await crowdsale.wallet.call();
 
         let walletBalance = web3.eth.getBalance(receiveEthWallet);
+        let crowdsaleTokenBalance = await uptoken.balanceOf.call(crowdsale.address);
 
         let vaultAddr = await crowdsale.vault.call();
         let vaultBalance = web3.eth.getBalance(vaultAddr);
@@ -175,8 +176,17 @@ contract('UDAPCrowdsale test', async (accounts) => {
         await crowdsale.finalize({from: crowdsale_owner});
 
         let after_walletBalance = web3.eth.getBalance(receiveEthWallet);
-
         assert.equal(after_walletBalance.toNumber(),weiRaised.toNumber()+walletBalance.toNumber(),"after calling the finalize() method, walletBalance equal to weiRaised + before walletBalance");
+
+        let after_crowdsaleTokenBalance = await uptoken.balanceOf.call(crowdsale.address);
+        assert.equal(after_crowdsaleTokenBalance.toNumber(),0,"after calling the finalize() method, crowdsaleTokenBalance equal to 0");
+
+        let after_walletTokenBalance = await uptoken.balanceOf.call(receiveEthWallet);
+        assert.equal(after_walletTokenBalance.toNumber(),crowdsaleTokenBalance.toNumber(),"wallet token balance should be equal to  crowdsale token balance");
+
+
+
+
     });
 
 
