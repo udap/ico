@@ -74,6 +74,7 @@ contract Privatesale is Ownable {
     uint256 unreleased = tokenAllocated[_beneficiary].sub(tokenReleased[_beneficiary]);
     require(unreleased > 0);
 
+    tokenAllocated[_beneficiary] = tokenReleased[_beneficiary];
     token.safeTransfer(owner, unreleased);
 
     emit Revoked(_beneficiary,unreleased);
