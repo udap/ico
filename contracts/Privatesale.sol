@@ -54,11 +54,11 @@ contract Privatesale is Ownable {
     }
   }
 
-  function getTotalAllocated() public onlyOwner returns (uint256) {
+  function getTotalAllocated() public view onlyOwner returns (uint256) {
     return totalAllocated;
   }
 
-  function calcTotalReleased() public returns(uint256){
+  function calcTotalReleased() public view returns(uint256){
     uint256 total = 0;
     for(uint i=0;i<beneficiaries.length;i++){
       total = total.add(tokenReleased[beneficiaries[i]]);
