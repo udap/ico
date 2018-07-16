@@ -42,7 +42,6 @@ contract Privatesale is Ownable {
   function addAllocation(address _beneficiary,uint256 _amount) public onlyOwner {
     require(_beneficiary != address(0));
     require(_amount > 0);
-    require(policy.startTime > now);
     tokenAllocated[_beneficiary] = tokenAllocated[_beneficiary].add(_amount);
     totalAllocated = totalAllocated.add(_amount);
     _addBeneficiary(_beneficiary);
